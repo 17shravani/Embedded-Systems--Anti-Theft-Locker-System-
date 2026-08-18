@@ -1,4 +1,5 @@
 # Anti-Theft Locker System
+<img width="1916" height="916" alt="Screenshot 2026-08-18 155021" src="https://github.com/user-attachments/assets/df7a03fb-deb7-4352-afc8-a171d1c4c0b8" />
 
 [![ESP32](https://img.shields.io/badge/Platform-ESP32-red.svg)](https://www.espressif.com/)
 [![Arduino](https://img.shields.io/badge/Platform-Arduino_UNO-blue.svg)](https://www.arduino.cc/)
