@@ -1,0 +1,1726 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smart Vault Enterprise - Anti-Theft Locker System</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@500;600;700;800&family=Inter:wght@400;500;600;700;800;900&family=VT323&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-dark: #070a12;
+      --panel-bg: #0f172a;
+      --card-bg: #1e293b;
+      --border-color: #475569;
+      --border-bright: #64748b;
+      --accent-blue: #38bdf8;
+      --accent-green: #22c55e;
+      --accent-red: #ef4444;
+      --accent-amber: #f59e0b;
+      --accent-purple: #c084fc;
+      --accent-cyan: #22d3ee;
+      --lcd-bg: #062817;
+      --lcd-text: #39ff14;
+      --lcd-shadow: #02120a;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--bg-dark);
+      color: #ffffff;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+
+    /* HEADER */
+    header {
+      background: linear-gradient(135deg, #0f172a, #020617);
+      border-bottom: 2px solid var(--border-color);
+      padding: 16px 32px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 6px 24px rgba(0,0,0,0.7);
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+
+    .brand-title {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .badge-enterprise {
+      background: #0284c7;
+      color: #ffffff;
+      font-size: 12px;
+      font-weight: 800;
+      padding: 6px 12px;
+      border-radius: 6px;
+      letter-spacing: 1px;
+      font-family: 'Fira Code', monospace;
+      border: 1px solid #38bdf8;
+      box-shadow: 0 0 12px rgba(56, 189, 248, 0.4);
+    }
+
+    .header-stats {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .status-pill {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 18px;
+      border-radius: 24px;
+      background: rgba(34, 197, 94, 0.2);
+      border: 2px solid #22c55e;
+      color: #4ade80;
+      font-size: 14px;
+      font-weight: 800;
+      letter-spacing: 0.8px;
+      box-shadow: 0 0 16px rgba(34, 197, 94, 0.3);
+    }
+
+    .status-pill.locked-out {
+      background: rgba(239, 68, 68, 0.25);
+      border-color: #ef4444;
+      color: #fca5a5;
+      animation: pulse-red 0.8s infinite;
+      box-shadow: 0 0 20px rgba(239, 68, 68, 0.5);
+    }
+
+    .status-pill.duress {
+      background: rgba(245, 158, 11, 0.25);
+      border-color: #f59e0b;
+      color: #fde68a;
+      box-shadow: 0 0 16px rgba(245, 158, 11, 0.4);
+    }
+
+    .status-indicator-dot {
+      width: 11px;
+      height: 11px;
+      border-radius: 50%;
+      background: currentColor;
+      box-shadow: 0 0 8px currentColor;
+    }
+
+    @keyframes pulse-red {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+
+    /* MAIN CONTAINER */
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: 1.18fr 0.82fr;
+      gap: 24px;
+      padding: 24px 32px;
+      flex: 1;
+      max-width: 1650px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    @media (max-width: 1200px) {
+      .dashboard-grid {
+        grid-template-columns: 1fr;
+        padding: 16px;
+      }
+    }
+
+    .panel {
+      background: var(--panel-bg);
+      border: 2px solid var(--border-color);
+      border-radius: 14px;
+      padding: 22px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      box-shadow: 0 12px 35px rgba(0,0,0,0.5);
+    }
+
+    .panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 2px solid #334155;
+      padding-bottom: 14px;
+    }
+
+    .panel-title {
+      font-size: 15px;
+      font-weight: 800;
+      color: #cbd5e1;
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    /* HARDWARE BENCH */
+    .bench-top-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+      align-items: stretch;
+    }
+
+    @media (max-width: 768px) {
+      .bench-top-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* 16x2 LCD MODULE - HIGH VISIBILITY */
+    .lcd-module {
+      background: #020617;
+      border: 2px solid var(--border-color);
+      border-radius: 10px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 12px;
+      height: 100%;
+      box-shadow: inset 0 2px 12px rgba(0,0,0,0.8);
+    }
+
+    .lcd-screen {
+      background: var(--lcd-bg);
+      border: 4px solid #000;
+      border-radius: 8px;
+      width: 100%;
+      height: 106px;
+      padding: 12px 18px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      box-shadow: inset 0 0 20px var(--lcd-shadow), 0 0 24px rgba(57, 255, 20, 0.25);
+      font-family: 'VT323', monospace;
+      font-size: 33px;
+      color: var(--lcd-text);
+      letter-spacing: 3px;
+      text-shadow: 0 0 10px rgba(57, 255, 20, 0.85);
+      line-height: 1.2;
+      overflow: hidden;
+      transition: all 0.3s;
+    }
+
+    .lcd-screen.blue-mode {
+      --lcd-bg: #03203f;
+      --lcd-text: #38bdf8;
+      --lcd-shadow: #011122;
+      text-shadow: 0 0 12px rgba(56, 189, 248, 0.9);
+      box-shadow: inset 0 0 20px var(--lcd-shadow), 0 0 24px rgba(56, 189, 248, 0.25);
+    }
+
+    .lcd-screen.amber-mode {
+      --lcd-bg: #381e02;
+      --lcd-text: #fbbf24;
+      --lcd-shadow: #1c0d01;
+      text-shadow: 0 0 12px rgba(251, 191, 36, 0.9);
+      box-shadow: inset 0 0 20px var(--lcd-shadow), 0 0 24px rgba(251, 191, 36, 0.25);
+    }
+
+    .lcd-line {
+      white-space: pre;
+      height: 38px;
+      display: flex;
+      align-items: center;
+    }
+
+    /* VAULT & SERVO - HIGH VISIBILITY */
+    .actuator-container {
+      background: #020617;
+      border: 2px solid var(--border-color);
+      border-radius: 10px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 12px;
+      height: 100%;
+    }
+
+    .locker-box-visual {
+      width: 100%;
+      height: 106px;
+      background: #1e293b;
+      border: 3px solid #64748b;
+      border-radius: 8px;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: inset 0 0 20px rgba(0,0,0,0.8);
+    }
+
+    .locker-door {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, #475569, #1e293b);
+      border-right: 5px solid #94a3b8;
+      transform-origin: left center;
+      transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      padding-right: 20px;
+      box-shadow: 6px 0 20px rgba(0,0,0,0.6);
+    }
+
+    .locker-door.unlocked {
+      transform: perspective(600px) rotateY(-78deg);
+    }
+
+    .locker-handle {
+      width: 12px;
+      height: 48px;
+      background: #f1f5f9;
+      border: 2px solid #94a3b8;
+      border-radius: 4px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.8);
+    }
+
+    .vault-interior {
+      color: #e2e8f0;
+      font-size: 13px;
+      font-weight: 700;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .servo-deadbolt-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      padding: 0 4px;
+    }
+
+    .servo-gauge {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .servo-horn {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: #0284c7;
+      border: 3px solid #38bdf8;
+      position: relative;
+      transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+      box-shadow: 0 0 12px rgba(56, 189, 248, 0.4);
+    }
+
+    .servo-horn::after {
+      content: '';
+      position: absolute;
+      top: 3px;
+      left: 14px;
+      width: 6px;
+      height: 18px;
+      background: #fff;
+      border-radius: 3px;
+    }
+
+    .deadbolt-status {
+      font-family: 'Fira Code', monospace;
+      font-size: 13px;
+      font-weight: 800;
+      color: #f1f5f9;
+    }
+
+    /* MIDDLE ROW (KEYPAD & RFID) */
+    .bench-middle-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+      align-items: stretch;
+    }
+
+    @media (max-width: 768px) {
+      .bench-middle-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* 4x4 KEYPAD - BOLD & VISIBLE */
+    .keypad-wrapper {
+      background: #020617;
+      border: 2px solid var(--border-color);
+      border-radius: 10px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .keypad-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      width: 100%;
+    }
+
+    .key-btn {
+      background: linear-gradient(180deg, #334155, #1e293b);
+      border: 2px solid #64748b;
+      color: #ffffff;
+      font-family: 'Fira Code', monospace;
+      font-size: 20px;
+      font-weight: 800;
+      height: 50px;
+      border-radius: 8px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.1s ease;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.5);
+    }
+
+    .key-btn:hover {
+      background: #475569;
+      border-color: #94a3b8;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 12px rgba(0,0,0,0.6);
+    }
+
+    .key-btn:active {
+      transform: translateY(2px);
+      background: #0284c7;
+      border-color: #38bdf8;
+    }
+
+    .key-btn.fn-key {
+      background: linear-gradient(180deg, #1e293b, #0f172a);
+      color: #38bdf8;
+      border-color: #0284c7;
+    }
+
+    .key-btn.action-clear { color: #f87171; border-color: #dc2626; }
+    .key-btn.action-enter { color: #4ade80; border-color: #16a34a; }
+
+    /* RFID & BIOMETRICS - HIGH CONTRAST */
+    .mfa-container {
+      background: #020617;
+      border: 2px solid var(--border-color);
+      border-radius: 10px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .mfa-header {
+      font-size: 12px;
+      font-weight: 800;
+      color: #cbd5e1;
+      text-transform: uppercase;
+      font-family: 'Fira Code', monospace;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .rfid-scanner-box {
+      border: 2px dashed #64748b;
+      border-radius: 8px;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      background: rgba(30, 41, 59, 0.5);
+      transition: border-color 0.2s;
+    }
+
+    .rfid-scanner-box.scanning {
+      border-color: #38bdf8;
+      background: rgba(56, 189, 248, 0.15);
+    }
+
+    .card-tap-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      width: 100%;
+    }
+
+    .smart-card-btn {
+      padding: 10px 6px;
+      border-radius: 6px;
+      border: 1.5px solid #475569;
+      background: #1e293b;
+      color: #ffffff;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      transition: all 0.2s;
+      text-align: center;
+    }
+
+    .smart-card-btn:hover {
+      background: #334155;
+      border-color: #38bdf8;
+      transform: translateY(-2px);
+    }
+
+    .smart-card-btn.admin-card {
+      border-color: #818cf8;
+      background: rgba(99, 102, 241, 0.25);
+      color: #e0e7ff;
+    }
+
+    .smart-card-btn.unauth-card {
+      border-color: #f87171;
+      background: rgba(239, 68, 68, 0.2);
+      color: #fee2e2;
+    }
+
+    .biometric-row {
+      background: #1e293b;
+      border: 1.5px solid #475569;
+      border-radius: 8px;
+      padding: 10px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    /* SENSORS & ALARM RAIL */
+    .sensors-rail {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      background: #020617;
+      border: 2px solid var(--border-color);
+      border-radius: 10px;
+      padding: 14px 18px;
+    }
+
+    .indicator-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      font-size: 11px;
+      font-weight: 800;
+      color: #cbd5e1;
+    }
+
+    .led-bulb {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      border: 2px solid #475569;
+      background: #1e293b;
+      transition: all 0.2s ease;
+    }
+
+    .led-bulb.red.active {
+      background: #ef4444;
+      border-color: #fca5a5;
+      box-shadow: 0 0 16px #ef4444, 0 0 30px rgba(239, 68, 68, 0.8);
+    }
+
+    .led-bulb.green.active {
+      background: #22c55e;
+      border-color: #86efac;
+      box-shadow: 0 0 16px #22c55e, 0 0 30px rgba(34, 197, 94, 0.8);
+    }
+
+    .buzzer-icon {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: #1e293b;
+      border: 2px solid #64748b;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #94a3b8;
+      font-size: 13px;
+      transition: all 0.15s;
+    }
+
+    .buzzer-icon.active {
+      background: #f59e0b;
+      border-color: #fde68a;
+      color: #000;
+      box-shadow: 0 0 16px #f59e0b;
+      animation: vibrate 0.1s infinite;
+    }
+
+    @keyframes vibrate {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.2); }
+      100% { transform: scale(1); }
+    }
+
+    /* RIGHT COLUMN - HIGH CONTRAST */
+    .side-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .scenario-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+
+    @media (max-width: 500px) {
+      .scenario-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    .scenario-btn {
+      background: #020617;
+      border: 1.5px solid #475569;
+      color: #ffffff;
+      padding: 12px 10px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s;
+      text-align: left;
+    }
+
+    .scenario-btn:hover {
+      background: #1e293b;
+      border-color: #38bdf8;
+      transform: translateY(-2px);
+    }
+
+    .scenario-btn.danger {
+      border-color: rgba(239, 68, 68, 0.6);
+      color: #fca5a5;
+    }
+
+    .scenario-btn.danger:hover {
+      border-color: #ef4444;
+      background: rgba(239, 68, 68, 0.25);
+    }
+
+    /* TABS */
+    .tab-nav {
+      display: flex;
+      gap: 8px;
+      border-bottom: 2px solid #334155;
+      padding-bottom: 10px;
+    }
+
+    .tab-btn {
+      background: transparent;
+      border: none;
+      color: #94a3b8;
+      font-size: 13px;
+      font-weight: 800;
+      padding: 8px 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .tab-btn.active {
+      background: #1e293b;
+      color: #38bdf8;
+      border: 1.5px solid #475569;
+    }
+
+    /* AUDIT TABLE - BOLD TEXT */
+    .audit-table-wrapper {
+      max-height: 250px;
+      overflow-y: auto;
+      border: 1.5px solid #334155;
+      border-radius: 8px;
+      background: #020617;
+    }
+
+    .audit-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-family: 'Fira Code', monospace;
+      font-size: 12px;
+    }
+
+    .audit-table th, .audit-table td {
+      padding: 10px 12px;
+      text-align: left;
+      border-bottom: 1px solid #1e293b;
+    }
+
+    .audit-table th {
+      background: #0f172a;
+      color: #cbd5e1;
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .badge-event {
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-weight: 800;
+      font-size: 11px;
+    }
+
+    .badge-event.granted { background: rgba(34, 197, 94, 0.25); color: #4ade80; border: 1px solid #22c55e; }
+    .badge-event.denied { background: rgba(239, 68, 68, 0.25); color: #f87171; border: 1px solid #ef4444; }
+    .badge-event.lockout { background: #ef4444; color: #fff; }
+    .badge-event.duress { background: #f59e0b; color: #000; font-weight: 900; }
+    .badge-event.tamper { background: #dc2626; color: #fff; animation: pulse-red 0.5s infinite; }
+
+    /* MQTT TELEMETRY STREAM */
+    .mqtt-stream {
+      background: #020617;
+      border: 1.5px solid #334155;
+      border-radius: 8px;
+      font-family: 'Fira Code', monospace;
+      font-size: 12px;
+      height: 250px;
+      padding: 12px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .mqtt-packet {
+      line-height: 1.5;
+      background: rgba(30, 41, 59, 0.6);
+      padding: 8px 10px;
+      border-radius: 6px;
+      border-left: 4px solid var(--accent-blue);
+    }
+
+    .mqtt-packet.critical {
+      border-left-color: var(--accent-red);
+      background: rgba(239, 68, 68, 0.2);
+    }
+
+    .mqtt-packet.duress {
+      border-left-color: var(--accent-amber);
+      background: rgba(245, 158, 11, 0.2);
+    }
+
+    /* EEPROM TABLE */
+    .eeprom-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-family: 'Fira Code', monospace;
+      font-size: 12px;
+      background: #020617;
+      border-radius: 8px;
+      border: 1.5px solid #334155;
+    }
+
+    .eeprom-table th, .eeprom-table td {
+      padding: 9px 12px;
+      text-align: left;
+      border-bottom: 1px solid #1e293b;
+    }
+
+    .eeprom-table th {
+      background: #0f172a;
+      color: #cbd5e1;
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    .small-btn {
+      background: #1e293b;
+      border: 1.5px solid #475569;
+      color: #f1f5f9;
+      font-size: 12px;
+      font-weight: 700;
+      padding: 6px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .small-btn:hover {
+      background: #334155;
+      border-color: #38bdf8;
+      color: #fff;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER BAR -->
+  <header>
+    <div class="brand-title">
+      <span class="badge-enterprise">ENTERPRISE VAULT OS v2.4</span>
+      <h1 style="font-size: 18px; font-weight: 800; letter-spacing: 0.5px;">Anti-Theft Intelligent Locker Digital Twin</h1>
+    </div>
+    <div class="header-stats">
+      <div style="font-size: 13px; color: #cbd5e1; font-family: monospace;">
+        Node: <span style="color: #38bdf8; font-weight: 800;">VAULT-SEC-01</span>
+      </div>
+      <div id="systemStatePill" class="status-pill">
+        <span class="status-indicator-dot"></span>
+        <span id="systemStateLabel">SYSTEM SECURE</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN WORKSPACE -->
+  <main class="dashboard-grid">
+    
+    <!-- LEFT COLUMN: HARDWARE BENCH -->
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title">
+          <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"></path></svg>
+          Hardware & Sensor Virtualization Bench
+        </div>
+        <div style="display: flex; gap: 10px;">
+          <button id="toggleAudioBtn" class="small-btn" onclick="toggleAudio()">🔊 Sound: ON</button>
+          <button id="lcdThemeBtn" class="small-btn" onclick="cycleLcdTheme()">LCD: Emerald</button>
+        </div>
+      </div>
+
+      <!-- TOP BENCH ROW: LCD & VAULT -->
+      <div class="bench-top-grid">
+        <!-- 16x2 LCD DISPLAY -->
+        <div class="lcd-module">
+          <div style="display: flex; justify-content: space-between; font-size: 11px; color: #94a3b8; font-family: monospace; font-weight: 700;">
+            <span>HD44780 I2C (0x27)</span>
+            <span id="mfaModeLabel" style="color: #38bdf8;">Mode: 1-Factor (PIN/RFID)</span>
+          </div>
+          <div id="lcdScreen" class="lcd-screen">
+            <div id="lcdLine1" class="lcd-line">  LOCKER SECURE </div>
+            <div id="lcdLine2" class="lcd-line">Enter PIN/Card: </div>
+          </div>
+        </div>
+
+        <!-- VAULT DOOR & DEADBOLT -->
+        <div class="actuator-container">
+          <div class="locker-box-visual">
+            <div class="vault-interior">
+              <span style="font-size: 26px;">💎 👑 📄</span>
+              <span style="font-size: 12px; font-weight: 800;">Protected Valuables</span>
+            </div>
+            <div id="lockerDoor" class="locker-door">
+              <div class="locker-handle"></div>
+            </div>
+          </div>
+
+          <div class="servo-deadbolt-row">
+            <div class="servo-gauge">
+              <div id="servoHorn" class="servo-horn"></div>
+              <div>
+                <div style="font-size: 11px; color: #94a3b8; font-weight: 700;">SG90 Servo</div>
+                <div id="servoAngleLabel" style="font-size: 13px; font-weight: 800; color: #38bdf8;">0° (LOCKED)</div>
+              </div>
+            </div>
+            <div id="deadboltStatus" class="deadbolt-status">Deadbolt: [ EXTENDED ]</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- MIDDLE BENCH ROW: KEYPAD & RFID/BIOMETRICS -->
+      <div class="bench-middle-grid">
+        <!-- 4x4 KEYPAD -->
+        <div class="keypad-wrapper">
+          <div style="font-size: 11px; color: #94a3b8; font-family: monospace; font-weight: 700; text-align: center; width: 100%;">
+            4x4 MATRIX KEYPAD
+          </div>
+          <div class="keypad-grid">
+            <button class="key-btn" onclick="pressKey('1')">1</button>
+            <button class="key-btn" onclick="pressKey('2')">2</button>
+            <button class="key-btn" onclick="pressKey('3')">3</button>
+            <button class="key-btn fn-key" onclick="pressKey('A')">A</button>
+
+            <button class="key-btn" onclick="pressKey('4')">4</button>
+            <button class="key-btn" onclick="pressKey('5')">5</button>
+            <button class="key-btn" onclick="pressKey('6')">6</button>
+            <button class="key-btn fn-key" onclick="pressKey('B')">B</button>
+
+            <button class="key-btn" onclick="pressKey('7')">7</button>
+            <button class="key-btn" onclick="pressKey('8')">8</button>
+            <button class="key-btn" onclick="pressKey('9')">9</button>
+            <button class="key-btn fn-key" onclick="pressKey('C')">C</button>
+
+            <button class="key-btn action-clear" onclick="pressKey('*')">*</button>
+            <button class="key-btn" onclick="pressKey('0')">0</button>
+            <button class="key-btn action-enter" onclick="pressKey('#')">#</button>
+            <button class="key-btn fn-key" onclick="pressKey('D')">D</button>
+          </div>
+        </div>
+
+        <!-- RFID & BIOMETRICS -->
+        <div class="mfa-container">
+          <div class="mfa-header">
+            <span>Contactless MFRC522 RFID</span>
+            <span style="color: #38bdf8;">13.56 MHz</span>
+          </div>
+          
+          <div id="rfidScanner" class="rfid-scanner-box">
+            <div class="card-tap-row">
+              <button class="smart-card-btn" onclick="tapRfid('user')">
+                <span style="font-size: 16px;">🏷️</span>
+                <span>User Tag</span>
+              </button>
+              <button class="smart-card-btn admin-card" onclick="tapRfid('master')">
+                <span style="font-size: 16px;">🛡️</span>
+                <span>Master Badge</span>
+              </button>
+              <button class="smart-card-btn unauth-card" onclick="tapRfid('invalid')">
+                <span style="font-size: 16px;">⛔</span>
+                <span>Unknown</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- BIOMETRIC FINGERPRINT SCANNER -->
+          <div class="biometric-row">
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <span style="font-size: 22px;">👆</span>
+              <div>
+                <div style="font-size: 12px; font-weight: 800;">Optical R305</div>
+                <div style="font-size: 10px; color: #94a3b8;">Fingerprint Scanner</div>
+              </div>
+            </div>
+            <div style="display: flex; gap: 8px;">
+              <button class="small-btn" onclick="scanFingerprint(true)">Enrolled</button>
+              <button class="small-btn" style="color: #f87171; border-color: #ef4444;" onclick="scanFingerprint(false)">Unregistered</button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- BOTTOM BENCH ROW: SENSORS & ALARM RAIL -->
+      <div class="sensors-rail">
+        <div class="indicator-item">
+          <div id="ledRed" class="led-bulb red active"></div>
+          <span>RED (Locked/Err)</span>
+        </div>
+        <div class="indicator-item">
+          <div id="ledGreen" class="led-bulb green"></div>
+          <span>GRN (Access)</span>
+        </div>
+        <div class="indicator-item">
+          <div id="buzzerIcon" class="buzzer-icon">🔔</div>
+          <span>PIEZO SIREN</span>
+        </div>
+        <div class="indicator-item">
+          <button id="shockSensorBtn" class="small-btn" style="border-color: #f59e0b; color: #f59e0b; padding: 4px 10px; font-weight: 800;" onclick="triggerShockTamper()">
+            🔨 Tamper Shock
+          </button>
+          <span style="font-size: 10px; margin-top: 2px;">SW-420 VIBRA</span>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- RIGHT COLUMN: TELEMETRY, AUDIT LOGS, & CONTROLS -->
+    <div class="side-stack">
+      
+      <!-- QUICK AUTOMATED SCENARIOS -->
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">
+            <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+            Industry Testing Scenarios
+          </div>
+        </div>
+        <div class="scenario-grid">
+          <button class="scenario-btn" onclick="testScenario('valid_pin')">
+            <span style="font-size: 16px;">✅</span>
+            <span>Standard (1234#)</span>
+          </button>
+          <button class="scenario-btn" onclick="testScenario('master_pin')">
+            <span style="font-size: 16px;">🛡️</span>
+            <span>Master (9999#)</span>
+          </button>
+          <button class="scenario-btn" onclick="testScenario('duress_pin')">
+            <span style="font-size: 16px;">⚠️</span>
+            <span>Duress (1122#)</span>
+          </button>
+          <button class="scenario-btn" onclick="testScenario('wrong_pin')">
+            <span style="font-size: 16px;">❌</span>
+            <span>Wrong (0000#)</span>
+          </button>
+          <button class="scenario-btn danger" onclick="testScenario('trigger_lockout')">
+            <span style="font-size: 16px;">🚨</span>
+            <span>3x Lockout</span>
+          </button>
+          <button class="scenario-btn danger" onclick="triggerShockTamper()">
+            <span style="font-size: 16px;">🔨</span>
+            <span>Shock Breach</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- TABS SECTION: AUDIT TRAIL / MQTT TELEMETRY / EEPROM MAP -->
+      <div class="panel" style="flex: 1;">
+        <div class="tab-nav">
+          <button id="tabAuditBtn" class="tab-btn active" onclick="switchTab('audit')">📋 Audit Trail</button>
+          <button id="tabMqttBtn" class="tab-btn" onclick="switchTab('mqtt')">📡 Live MQTT Stream</button>
+          <button id="tabEepromBtn" class="tab-btn" onclick="switchTab('eeprom')">💾 EEPROM Memory</button>
+        </div>
+
+        <!-- TAB 1: AUDIT LOGS -->
+        <div id="tabAudit">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+            <span style="font-size: 11px; color: #cbd5e1; font-weight: 700;">ISO 27001 / PCI-DSS Certified Access Trail</span>
+            <button class="small-btn" onclick="exportAuditCsv()">📥 Export CSV</button>
+          </div>
+          <div class="audit-table-wrapper">
+            <table class="audit-table">
+              <thead>
+                <tr>
+                  <th>Time</th>
+                  <th>Method</th>
+                  <th>User / ID</th>
+                  <th>Status</th>
+                  <th>Notes</th>
+                </tr>
+              </thead>
+              <tbody id="auditTableBody">
+                <!-- Dynamically populated -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- TAB 2: MQTT TELEMETRY -->
+        <div id="tabMqtt" style="display: none;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+            <span style="font-size: 11px; color: #cbd5e1; font-weight: 700;">Topic: <code style="color: #38bdf8;">lockers/vault-01/events</code></span>
+            <button class="small-btn" onclick="clearMqtt()">Clear Stream</button>
+          </div>
+          <div id="mqttStream" class="mqtt-stream"></div>
+        </div>
+
+        <!-- TAB 3: EEPROM MAP -->
+        <div id="tabEeprom" style="display: none;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+            <span style="font-size: 11px; color: #cbd5e1; font-weight: 700;">Non-Volatile Flash Partition (32 Bytes)</span>
+            <button class="small-btn" onclick="resetEepromDefaults()">Reset Defaults</button>
+          </div>
+          <table class="eeprom-table">
+            <thead>
+              <tr>
+                <th>Address</th>
+                <th>Parameter</th>
+                <th>Hex Data</th>
+                <th>Decoded</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>0x00</td>
+                <td>Magic Byte</td>
+                <td style="color: #38bdf8; font-weight: 800;">0xA5</td>
+                <td>Initialized</td>
+              </tr>
+              <tr>
+                <td>0x01 - 0x04</td>
+                <td>User Access PIN</td>
+                <td id="eepromUserPinHex" style="color: #38bdf8; font-weight: 800;">0x31 0x32 0x33 0x34</td>
+                <td id="eepromUserPinDec" style="font-weight: 800;">"1234"</td>
+              </tr>
+              <tr>
+                <td>0x05 - 0x08</td>
+                <td>Master Admin PIN</td>
+                <td style="color: #c084fc; font-weight: 800;">0x39 0x39 0x39 0x39</td>
+                <td style="font-weight: 800;">"9999"</td>
+              </tr>
+              <tr>
+                <td>0x09 - 0x0C</td>
+                <td>Silent Duress PIN</td>
+                <td style="color: #fbbf24; font-weight: 800;">0x31 0x31 0x32 0x32</td>
+                <td style="font-weight: 800;">"1122"</td>
+              </tr>
+              <tr>
+                <td>0x0D</td>
+                <td>Failed Attempts</td>
+                <td id="eepromAttemptsHex" style="color: #f87171; font-weight: 800;">0x00</td>
+                <td id="eepromAttemptsDec" style="font-weight: 800;">0</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+
+    </div>
+
+  </main>
+
+  <script>
+    // ========================================================================
+    // STATE MACHINE & SYSTEM CREDENTIALS
+    // ========================================================================
+    const STATE_LOCKED = 'STATE_LOCKED';
+    const STATE_UNLOCKED = 'STATE_UNLOCKED';
+    const STATE_LOCKOUT = 'STATE_LOCKOUT';
+    const STATE_PIN_CHANGE = 'STATE_PIN_CHANGE';
+    const STATE_TAMPER_ALARM = 'STATE_TAMPER_ALARM';
+
+    let currentState = STATE_LOCKED;
+    let userPin = "1234";
+    const masterPin = "9999";
+    const duressPin = "1122"; // Silent Panic Code
+    const authorizedRfid = "04:A1:F2:88";
+    const masterRfid = "FF:90:E1:00";
+
+    let inputBuffer = "";
+    let failedAttempts = 0;
+    const MAX_FAILED_ATTEMPTS = 3;
+    const LOCKOUT_MS = 30000;
+    const AUTO_LOCK_MS = 5000;
+
+    let lockoutTimer = null;
+    let lockoutRemaining = 0;
+    let autoLockTimer = null;
+    let sirenInterval = null;
+
+    // Audio Synthesizer
+    let audioCtx = null;
+    let isMuted = false;
+
+    // Audit Log Array
+    const auditLogs = [];
+
+    // ========================================================================
+    // AUDIO ENGINE (WEB AUDIO API)
+    // ========================================================================
+    function initAudio() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+    }
+
+    function playTone(freq, type = 'square', duration = 0.15) {
+      if (isMuted) return;
+      initAudio();
+      try {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = type;
+        osc.frequency.value = freq;
+        gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + duration);
+      } catch (e) {
+        console.warn("Audio Error:", e);
+      }
+    }
+
+    function toggleAudio() {
+      isMuted = !isMuted;
+      document.getElementById('toggleAudioBtn').innerText = isMuted ? "🔇 Sound: MUTED" : "🔊 Sound: ON";
+      if (isMuted && sirenInterval) {
+        clearInterval(sirenInterval);
+        sirenInterval = null;
+      }
+    }
+
+    // ========================================================================
+    // UI REFRESH HANDLERS
+    // ========================================================================
+    function updateLcd(l1, l2) {
+      document.getElementById('lcdLine1').innerText = l1.padEnd(16, ' ').slice(0, 16);
+      document.getElementById('lcdLine2').innerText = l2.padEnd(16, ' ').slice(0, 16);
+    }
+
+    function setBuzzerActive(active) {
+      document.getElementById('buzzerIcon').className = active ? "buzzer-icon active" : "buzzer-icon";
+    }
+
+    function updateLockerVisual(unlocked) {
+      const door = document.getElementById('lockerDoor');
+      const horn = document.getElementById('servoHorn');
+      const angleLabel = document.getElementById('servoAngleLabel');
+      const boltStatus = document.getElementById('deadboltStatus');
+      const ledRed = document.getElementById('ledRed');
+      const ledGreen = document.getElementById('ledGreen');
+
+      if (unlocked) {
+        door.classList.add('unlocked');
+        horn.style.transform = 'rotate(90deg)';
+        angleLabel.innerText = "90° (UNLOCKED)";
+        angleLabel.style.color = "#22c55e";
+        boltStatus.innerText = "Deadbolt: [ RETRACTED ]";
+        boltStatus.style.color = "#22c55e";
+        ledRed.classList.remove('active');
+        ledGreen.classList.add('active');
+      } else {
+        door.classList.remove('unlocked');
+        horn.style.transform = 'rotate(0deg)';
+        angleLabel.innerText = "0° (LOCKED)";
+        angleLabel.style.color = "#38bdf8";
+        boltStatus.innerText = "Deadbolt: [ EXTENDED ]";
+        boltStatus.style.color = "#ffffff";
+        ledGreen.classList.remove('active');
+        ledRed.classList.add('active');
+      }
+    }
+
+    function setSystemPill(state, text, modeClass = "") {
+      const pill = document.getElementById('systemStatePill');
+      const label = document.getElementById('systemStateLabel');
+      label.innerText = text;
+      pill.className = "status-pill " + modeClass;
+    }
+
+    function updateEepromDisplay() {
+      let pinHex = "";
+      for (let i = 0; i < userPin.length; i++) {
+        pinHex += "0x" + userPin.charCodeAt(i).toString(16).toUpperCase() + " ";
+      }
+      document.getElementById('eepromUserPinHex').innerText = pinHex.trim();
+      document.getElementById('eepromUserPinDec').innerText = `"${userPin}"`;
+      document.getElementById('eepromAttemptsHex').innerText = "0x0" + failedAttempts;
+      document.getElementById('eepromAttemptsDec').innerText = failedAttempts;
+    }
+
+    // ========================================================================
+    // AUDIT LOG & MQTT PUBLISHER
+    // ========================================================================
+    function addAuditEntry(method, user, status, notes, badgeType) {
+      const now = new Date();
+      const timeStr = now.toLocaleTimeString();
+      
+      const record = { timeStr, method, user, status, notes, badgeType };
+      auditLogs.unshift(record);
+
+      const tableBody = document.getElementById('auditTableBody');
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td style="color: #94a3b8; font-weight: 700;">${timeStr}</td>
+        <td style="font-weight: 700; color: #38bdf8;">${method}</td>
+        <td style="font-weight: 800; color: #ffffff;">${user}</td>
+        <td><span class="badge-event ${badgeType}">${status}</span></td>
+        <td style="color: #cbd5e1;">${notes}</td>
+      `;
+      tableBody.insertBefore(row, tableBody.firstChild);
+
+      publishMqtt(method, user, status, notes, badgeType);
+    }
+
+    function publishMqtt(method, user, status, notes, badgeType) {
+      const stream = document.getElementById('mqttStream');
+      const div = document.createElement('div');
+      div.className = 'mqtt-packet' + (badgeType === 'tamper' || badgeType === 'lockout' ? ' critical' : (badgeType === 'duress' ? ' duress' : ''));
+      
+      const payload = {
+        device_id: "VAULT-SEC-01",
+        timestamp: new Date().toISOString(),
+        auth_method: method,
+        identity: user,
+        access_event: status,
+        details: notes
+      };
+
+      div.innerHTML = `<span style="color: #c084fc; font-weight: 800;">[PUBLISH]</span> <span style="color: #94a3b8;">lockers/vault-01/events</span><br><code style="color: #f1f5f9; font-weight: 700;">${JSON.stringify(payload)}</code>`;
+      stream.appendChild(div);
+      stream.scrollTop = stream.scrollHeight;
+    }
+
+    function clearMqtt() {
+      document.getElementById('mqttStream').innerHTML = '';
+    }
+
+    function exportAuditCsv() {
+      if (auditLogs.length === 0) {
+        alert("No audit logs recorded yet.");
+        return;
+      }
+      let csv = "Timestamp,Method,User,Status,Notes\n";
+      auditLogs.forEach(r => {
+        csv += `"${r.timeStr}","${r.method}","${r.user}","${r.status}","${r.notes}"\n`;
+      });
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.setAttribute('href', url);
+      a.setAttribute('download', `Vault_Audit_Log_${new Date().toISOString().slice(0,10)}.csv`);
+      a.click();
+    }
+
+    // ========================================================================
+    // KEYPAD MATRIX SCANNER
+    // ========================================================================
+    function pressKey(key) {
+      initAudio();
+
+      if (currentState === STATE_LOCKOUT || currentState === STATE_TAMPER_ALARM) {
+        playTone(300, 'sawtooth', 0.08);
+        return;
+      }
+
+      if (currentState === STATE_LOCKED) {
+        if (key >= '0' && key <= '9') {
+          if (inputBuffer.length < 4) {
+            inputBuffer += key;
+            playTone(1200, 'sine', 0.04);
+            updateLcd("  LOCKER SECURE ", "Enter PIN: " + "*".repeat(inputBuffer.length));
+          } else {
+            playTone(400, 'square', 0.1);
+          }
+        }
+        else if (key === '*') {
+          inputBuffer = "";
+          playTone(500, 'square', 0.06);
+          updateLcd("  LOCKER SECURE ", "Enter PIN/Card: ");
+        }
+        else if (key === '#') {
+          if (inputBuffer.length === 4) {
+            verifyPin(inputBuffer);
+          } else {
+            playTone(400, 'square', 0.2);
+            updateLcd("  INVALID LENGTH", "Enter 4 Digits");
+            setTimeout(() => {
+              inputBuffer = "";
+              updateLcd("  LOCKER SECURE ", "Enter PIN/Card: ");
+            }, 1200);
+          }
+        }
+      }
+      else if (currentState === STATE_UNLOCKED) {
+        if (key === 'A') {
+          currentState = STATE_PIN_CHANGE;
+          inputBuffer = "";
+          setSystemPill(STATE_PIN_CHANGE, "PASSWORD CONFIG");
+          updateLcd(" CHANGE PASSWORD", "New PIN: ");
+          playTone(1500, 'sine', 0.1);
+          if (autoLockTimer) clearTimeout(autoLockTimer);
+        }
+      }
+      else if (currentState === STATE_PIN_CHANGE) {
+        if (key >= '0' && key <= '9') {
+          if (inputBuffer.length < 4) {
+            inputBuffer += key;
+            playTone(1200, 'sine', 0.04);
+            updateLcd(" CHANGE PASSWORD", "New PIN: " + "*".repeat(inputBuffer.length));
+          }
+        }
+        else if (key === '*') {
+          inputBuffer = "";
+          updateLcd(" CHANGE PASSWORD", "New PIN: ");
+          playTone(500, 'square', 0.06);
+        }
+        else if (key === '#') {
+          if (inputBuffer.length === 4) {
+            userPin = inputBuffer;
+            inputBuffer = "";
+            updateEepromDisplay();
+            updateLcd(" PASSWORD SET!  ", " Locker Locking ");
+            addAuditEntry("KEYPAD", "User #1", "PIN_CHANGED", `New PIN: ${userPin}`, "granted");
+            playTone(1500, 'sine', 0.2);
+
+            setTimeout(() => {
+              currentState = STATE_LOCKED;
+              setSystemPill(STATE_LOCKED, "SYSTEM SECURE");
+              updateLockerVisual(false);
+              updateLcd("  LOCKER SECURE ", "Enter PIN/Card: ");
+            }, 2000);
+          }
+        }
+      }
+    }
+
+    // ========================================================================
+    // AUTHENTICATION LOGIC (MULTI-ROLE, DURESS, & MASTER)
+    // ========================================================================
+    function verifyPin(entered) {
+      // 1. Silent Duress Alarm
+      if (entered === duressPin) {
+        currentState = STATE_UNLOCKED;
+        inputBuffer = "";
+        failedAttempts = 0;
+        updateEepromDisplay();
+        setSystemPill(STATE_UNLOCKED, "PANIC / DURESS MODE", "duress");
+        updateLcd(" ACCESS GRANTED ", " Locker Opened! ");
+        updateLockerVisual(true);
+        playTone(1500, 'sine', 0.2);
+
+        addAuditEntry("KEYPAD_DURESS", "Under Duress", "DURESS_ALARM", "SILENT PANIC CODE USED! Security alerted.", "duress");
+        scheduleAutoLock();
+        return;
+      }
+
+      // 2. Master PIN
+      if (entered === masterPin) {
+        currentState = STATE_UNLOCKED;
+        inputBuffer = "";
+        failedAttempts = 0;
+        updateEepromDisplay();
+        setSystemPill(STATE_UNLOCKED, "MASTER OVERRIDE");
+        updateLcd(" MASTER OVERRIDE", " Admin Access OK");
+        updateLockerVisual(true);
+        playTone(1800, 'sine', 0.3);
+
+        addAuditEntry("KEYPAD_MASTER", "Admin / Master", "GRANTED", "Master bypass passcode accepted", "granted");
+        scheduleAutoLock();
+        return;
+      }
+
+      // 3. User Standard PIN
+      if (entered === userPin) {
+        currentState = STATE_UNLOCKED;
+        inputBuffer = "";
+        failedAttempts = 0;
+        updateEepromDisplay();
+        setSystemPill(STATE_UNLOCKED, "ACCESS GRANTED");
+        updateLcd(" ACCESS GRANTED ", " Locker Opened! ");
+        updateLockerVisual(true);
+        playTone(1500, 'sine', 0.3);
+
+        addAuditEntry("KEYPAD", "User #1", "GRANTED", "Correct 4-digit PIN authenticated", "granted");
+        scheduleAutoLock();
+        return;
+      }
+
+      // 4. Failed Attempt
+      failedAttempts++;
+      inputBuffer = "";
+      updateEepromDisplay();
+      playTone(500, 'sawtooth', 0.3);
+      setBuzzerActive(true);
+      setTimeout(() => setBuzzerActive(false), 300);
+
+      addAuditEntry("KEYPAD", "Unknown", "DENIED", `Invalid PIN. Failed attempt ${failedAttempts}/${MAX_FAILED_ATTEMPTS}`, "denied");
+
+      if (failedAttempts >= MAX_FAILED_ATTEMPTS) {
+        triggerLockout();
+      } else {
+        updateLcd(" ACCESS DENIED! ", " Try Again...   ");
+        setTimeout(() => {
+          if (currentState === STATE_LOCKED) {
+            updateLcd("  LOCKER SECURE ", "Enter PIN/Card: ");
+          }
+        }, 1800);
+      }
+    }
+
+    function scheduleAutoLock() {
+      if (autoLockTimer) clearTimeout(autoLockTimer);
+      autoLockTimer = setTimeout(() => {
+        if (currentState === STATE_UNLOCKED) {
+          currentState = STATE_LOCKED;
+          setSystemPill(STATE_LOCKED, "SYSTEM SECURE");
+          updateLockerVisual(false);
+          updateLcd("  LOCKER SECURE ", "Enter PIN/Card: ");
+          addAuditEntry("AUTO_LOCK", "System Timer", "LOCKED", "Locker secured after 5s timeout", "granted");
+        }
+      }, AUTO_LOCK_MS);
+    }
+
+    // ========================================================================
+    // RFID & BIOMETRIC AUTHENTICATION HANDLERS
+    // ========================================================================
+    function tapRfid(cardType) {
+      initAudio();
+      const rfidBox = document.getElementById('rfidScanner');
+      rfidBox.classList.add('scanning');
+      setTimeout(() => rfidBox.classList.remove('scanning'), 600);
+
+      if (currentState === STATE_LOCKOUT || currentState === STATE_TAMPER_ALARM) {
+        playTone(300, 'sawtooth', 0.1);
+        return;
+      }
+
+      if (cardType === 'master') {
+        currentState = STATE_UNLOCKED;
+        failedAttempts = 0;
+        updateEepromDisplay();
+        setSystemPill(STATE_UNLOCKED, "MASTER RFID BADGE");
+        updateLcd(" MASTER CARD OK ", " Admin Access OK");
+        updateLockerVisual(true);
+        playTone(1800, 'sine', 0.3);
+        addAuditEntry("RFID_MFRC522", "Admin (#FF-90-E1)", "GRANTED", "Master RFID tag authenticated", "granted");
+        scheduleAutoLock();
+      }
+      else if (cardType === 'user') {
+        currentState = STATE_UNLOCKED;
+        failedAttempts = 0;
+        updateEepromDisplay();
+        setSystemPill(STATE_UNLOCKED, "RFID AUTHENTICATED");
+        updateLcd(" RFID ACCEPTED! ", " Locker Opened! ");
+        updateLockerVisual(true);
+        playTone(1500, 'sine', 0.3);
+        addAuditEntry("RFID_MFRC522", "User (#04-A1-F2)", "GRANTED", "User RFID contactless tag authorized", "granted");
+        scheduleAutoLock();
+      }
+      else {
+        failedAttempts++;
+        updateEepromDisplay();
+        playTone(500, 'sawtooth', 0.3);
+        setBuzzerActive(true);
+        setTimeout(() => setBuzzerActive(false), 300);
+        addAuditEntry("RFID_MFRC522", "Unknown UID", "DENIED", `Unauthorized RFID badge. Attempt ${failedAttempts}/${MAX_FAILED_ATTEMPTS}`, "denied");
+        
+        if (failedAttempts >= MAX_FAILED_ATTEMPTS) {
+          triggerLockout();
+        } else {
+          updateLcd(" INVALID RFID!  ", " Tag Unenrolled ");
+          setTimeout(() => {
+            if (currentState === STATE_LOCKED) updateLcd("  LOCKER SECURE ", "Enter PIN/Card: ");
+          }, 1800);
+        }
+      }
+    }
+
+    function scanFingerprint(isEnrolled) {
+      initAudio();
+      if (currentState === STATE_LOCKOUT || currentState === STATE_TAMPER_ALARM) return;
+
+      if (isEnrolled) {
+        currentState = STATE_UNLOCKED;
+        failedAttempts = 0;
+        updateEepromDisplay();
+        setSystemPill(STATE_UNLOCKED, "BIOMETRIC MATCH");
+        updateLcd(" FINGERPRINT OK ", " Locker Opened! ");
+        updateLockerVisual(true);
+        playTone(1600, 'sine', 0.3);
+        addAuditEntry("OPTICAL_R305", "User #1 (ID: 01)", "GRANTED", "Capacitive biometric match confidence 98%", "granted");
+        scheduleAutoLock();
+      } else {
+        failedAttempts++;
+        updateEepromDisplay();
+        playTone(500, 'sawtooth', 0.3);
+        addAuditEntry("OPTICAL_R305", "Unknown Finger", "DENIED", "Biometric verification failed (No match)", "denied");
+        if (failedAttempts >= MAX_FAILED_ATTEMPTS) {
+          triggerLockout();
+        } else {
+          updateLcd(" NO MATCH FOUND ", " Try Finger Again");
+          setTimeout(() => {
+            if (currentState === STATE_LOCKED) updateLcd("  LOCKER SECURE ", "Enter PIN/Card: ");
+          }, 1800);
+        }
+      }
+    }
+
+    // ========================================================================
+    // SHOCK & TAMPER DETECTION
+    // ========================================================================
+    function triggerShockTamper() {
+      initAudio();
+      currentState = STATE_TAMPER_ALARM;
+      setSystemPill(STATE_TAMPER_ALARM, "TAMPER / CHASSIS BREACH", "locked-out");
+      updateLcd("! TAMPER ALARM !", "Vibration Breach");
+      updateLockerVisual(false);
+
+      addAuditEntry("SW-420_SHOCK", "Intruder", "TAMPER_DETECTED", "High-frequency physical vibration impact trip!", "tamper");
+
+      let sirenState = false;
+      if (sirenInterval) clearInterval(sirenInterval);
+      sirenInterval = setInterval(() => {
+        sirenState = !sirenState;
+        playTone(sirenState ? 900 : 1500, 'sawtooth', 0.15);
+        setBuzzerActive(true);
+        const ledRed = document.getElementById('ledRed');
+        const ledGreen = document.getElementById('ledGreen');
+        if (sirenState) {
+          ledRed.classList.add('active');
+          ledGreen.classList.remove('active');
+        } else {
+          ledRed.classList.remove('active');
+          ledGreen.classList.add('active');
+        }
+      }, 150);
+
+      setTimeout(() => {
+        clearInterval(sirenInterval);
+        sirenInterval = null;
+        setBuzzerActive(false);
+        currentState = STATE_LOCKED;
+        setSystemPill(STATE_LOCKED, "SYSTEM SECURE");
+        updateLockerVisual(false);
+        updateLcd("  LOCKER SECURE ", "Enter PIN/Card: ");
+        addAuditEntry("TAMPER_RESET", "Admin", "RESTORED", "Tamper condition cleared after inspection", "granted");
+      }, 15000);
+    }
+
+    // ========================================================================
+    // LOCKOUT TIMEOUT & SIREN
+    // ========================================================================
+    function triggerLockout() {
+      currentState = STATE_LOCKOUT;
+      lockoutRemaining = 30;
+      setSystemPill(STATE_LOCKOUT, "EMERGENCY LOCKOUT", "locked-out");
+      updateLockerVisual(false);
+
+      addAuditEntry("SECURITY_GUARD", "Brute Force", "SYSTEM_LOCKOUT", "3 Consecutive incorrect attempts. Siren engaged.", "lockout");
+
+      let sirenState = false;
+      if (sirenInterval) clearInterval(sirenInterval);
+      sirenInterval = setInterval(() => {
+        sirenState = !sirenState;
+        playTone(sirenState ? 800 : 1200, 'sawtooth', 0.18);
+        setBuzzerActive(true);
+        const ledRed = document.getElementById('ledRed');
+        const ledGreen = document.getElementById('ledGreen');
+        if (sirenState) {
+          ledRed.classList.add('active');
+          ledGreen.classList.remove('active');
+        } else {
+          ledRed.classList.remove('active');
+          ledGreen.classList.add('active');
+        }
+      }, 200);
+
+      if (lockoutTimer) clearInterval(lockoutTimer);
+      lockoutTimer = setInterval(() => {
+        lockoutRemaining--;
+        updateLcd(" SYSTEM LOCKED! ", `Wait: ${lockoutRemaining} seconds`);
+
+        if (lockoutRemaining <= 0) {
+          clearInterval(lockoutTimer);
+          clearInterval(sirenInterval);
+          sirenInterval = null;
+          setBuzzerActive(false);
+
+          currentState = STATE_LOCKED;
+          failedAttempts = 0;
+          updateEepromDisplay();
+          setSystemPill(STATE_LOCKED, "SYSTEM SECURE");
+          updateLockerVisual(false);
+          updateLcd("  LOCKER SECURE ", "Enter PIN/Card: ");
+          addAuditEntry("LOCKOUT_EXPIRY", "System", "RESTORED", "Penalty lockout expired. System ready.", "granted");
+        }
+      }, 1000);
+    }
+
+    // ========================================================================
+    // TEST SCENARIOS
+    // ========================================================================
+    function testScenario(type) {
+      initAudio();
+      switch(type) {
+        case 'valid_pin':
+          simulateTyping(userPin + "#");
+          break;
+        case 'master_pin':
+          simulateTyping(masterPin + "#");
+          break;
+        case 'duress_pin':
+          simulateTyping(duressPin + "#");
+          break;
+        case 'wrong_pin':
+          simulateTyping("0000#");
+          break;
+        case 'trigger_lockout':
+          failedAttempts = 2;
+          updateEepromDisplay();
+          simulateTyping("5555#");
+          break;
+      }
+    }
+
+    function simulateTyping(str) {
+      let delay = 0;
+      for (const ch of str) {
+        setTimeout(() => pressKey(ch), delay);
+        delay += 240;
+      }
+    }
+
+    function switchTab(tab) {
+      document.getElementById('tabAudit').style.display = tab === 'audit' ? 'block' : 'none';
+      document.getElementById('tabMqtt').style.display = tab === 'mqtt' ? 'block' : 'none';
+      document.getElementById('tabEeprom').style.display = tab === 'eeprom' ? 'block' : 'none';
+
+      document.getElementById('tabAuditBtn').className = 'tab-btn' + (tab === 'audit' ? ' active' : '');
+      document.getElementById('tabMqttBtn').className = 'tab-btn' + (tab === 'mqtt' ? ' active' : '');
+      document.getElementById('tabEepromBtn').className = 'tab-btn' + (tab === 'eeprom' ? ' active' : '');
+    }
+
+    function cycleLcdTheme() {
+      const scr = document.getElementById('lcdScreen');
+      const btn = document.getElementById('lcdThemeBtn');
+      if (scr.classList.contains('blue-mode')) {
+        scr.classList.remove('blue-mode');
+        scr.classList.add('amber-mode');
+        btn.innerText = "LCD: Amber";
+      } else if (scr.classList.contains('amber-mode')) {
+        scr.classList.remove('amber-mode');
+        btn.innerText = "LCD: Emerald";
+      } else {
+        scr.classList.add('blue-mode');
+        btn.innerText = "LCD: Sapphire";
+      }
+    }
+
+    function resetEepromDefaults() {
+      userPin = "1234";
+      failedAttempts = 0;
+      updateEepromDisplay();
+      addAuditEntry("SYSTEM", "Admin", "RESET_EEPROM", "Factory defaults restored", "granted");
+    }
+
+    // Keyboard capture
+    window.addEventListener('keydown', (e) => {
+      if ((e.key >= '0' && e.key <= '9') || ['a','b','c','d','A','B','C','D','*','#'].includes(e.key)) {
+        pressKey(e.key.toUpperCase());
+      } else if (e.key === 'Enter') {
+        pressKey('#');
+      } else if (e.key === 'Backspace' || e.key === 'Escape') {
+        pressKey('*');
+      }
+    });
+
+    // Boot
+    window.addEventListener('DOMContentLoaded', () => {
+      updateEepromDisplay();
+      addAuditEntry("BOOT", "ESP32 Kernel", "SYSTEM_ONLINE", "Firmware booted on Node VAULT-SEC-01", "granted");
+    });
+  </script>
+</body>
+</html>

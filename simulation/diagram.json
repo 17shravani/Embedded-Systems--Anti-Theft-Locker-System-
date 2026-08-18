@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "author": "Antigravity AI",
+  "editor": "wokwi",
+  "parts": [
+    { "type": "wokwi-esp32-devkit-v1", "id": "esp", "top": 124.8, "left": -28.8, "attrs": {} },
+    { "type": "wokwi-membrane-keypad", "id": "keypad", "top": 78, "left": -345.6, "attrs": {} },
+    { "type": "wokwi-lcd1602", "id": "lcd", "top": -144, "left": -9.6, "attrs": { "pins": "i2c" } },
+    { "type": "wokwi-servo", "id": "servo", "top": 172.8, "left": 230.4, "attrs": {} },
+    { "type": "wokwi-buzzer", "id": "buzzer", "top": 364.8, "left": -28.8, "attrs": {} },
+    { "type": "wokwi-led", "id": "led-green", "top": 28.8, "left": 192, "attrs": { "color": "green" } },
+    { "type": "wokwi-led", "id": "led-red", "top": 28.8, "left": 134.4, "attrs": { "color": "red" } }
+  ],
+  "connections": [
+    [ "esp:GND.1", "lcd:GND", "black", [ "h0" ] ],
+    [ "esp:VIN", "lcd:VCC", "red", [ "h0" ] ],
+    [ "esp:21", "lcd:SDA", "blue", [ "h0" ] ],
+    [ "esp:22", "lcd:SCL", "yellow", [ "h0" ] ],
+    [ "esp:13", "keypad:R1", "purple", [ "h0" ] ],
+    [ "esp:12", "keypad:R2", "purple", [ "h0" ] ],
+    [ "esp:14", "keypad:R3", "purple", [ "h0" ] ],
+    [ "esp:27", "keypad:R4", "purple", [ "h0" ] ],
+    [ "esp:26", "keypad:C1", "green", [ "h0" ] ],
+    [ "esp:25", "keypad:C2", "green", [ "h0" ] ],
+    [ "esp:33", "keypad:C3", "green", [ "h0" ] ],
+    [ "esp:32", "keypad:C4", "green", [ "h0" ] ],
+    [ "esp:GND.2", "servo:GND", "black", [ "h0" ] ],
+    [ "esp:VIN", "servo:VCC", "red", [ "h0" ] ],
+    [ "esp:18", "servo:PWM", "orange", [ "h0" ] ],
+    [ "esp:GND.3", "buzzer:1", "black", [ "h0" ] ],
+    [ "esp:19", "buzzer:2", "grey", [ "h0" ] ],
+    [ "esp:2", "led-green:A", "green", [ "h0" ] ],
+    [ "esp:GND.2", "led-green:C", "black", [ "h0" ] ],
+    [ "esp:4", "led-red:A", "red", [ "h0" ] ],
+    [ "esp:GND.2", "led-red:C", "black", [ "h0" ] ]
+  ],
+  "dependencies": {}
+}
